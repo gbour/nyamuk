@@ -127,13 +127,13 @@ class Nyamuk(base_nyamuk.BaseNyamuk):
             self.logger.warning("Unknown protocol. Cmd = %d", cmd)
             return NC.ERR_PROTOCOL
     
-    def connect(self, clean_session = 1):
+    def connect(self, version = 3, clean_session = 1):
         """Connect to server."""
         self.clean_session = clean_session
         
         #CONNECT packet
         pkt = MqttPkt()
-        pkt.connect_build(self, self.keep_alive, clean_session)
+        pkt.connect_build(self, self.keep_alive, clean_session, version = version)
         
         #create socket
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
