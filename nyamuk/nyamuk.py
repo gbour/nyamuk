@@ -185,6 +185,8 @@ class Nyamuk(base_nyamuk.BaseNyamuk):
             return NC.ERR_NO_CONN
         
         self.logger.info("SUBSCRIBE: %s", topic)
+        if type(topic) is unicode:
+            topic = topic.encode('utf8')
         return self.send_subscribe(False, topic, qos)
 
     def unsubscribe(self, topic):
@@ -344,7 +346,7 @@ class Nyamuk(base_nyamuk.BaseNyamuk):
         message.msg.retain = (header & 0x01)
         
         ret, ba_data = self.in_packet.read_string()
-        message.msg.topic = ba_data.decode()
+        message.msg.topic = ba_data.decode('utf8')
         
         if ret != NC.ERR_SUCCESS:
             return ret
@@ -362,15 +364,17 @@ class Nyamuk(base_nyamuk.BaseNyamuk):
             ret, message.msg.payload = self.in_packet.read_bytes(message.msg.payloadlen)
             if ret != NC.ERR_SUCCESS:
                 return ret
-        
+       
         self.logger.debug("Received PUBLISH(dup = %d,qos=%d,retain=%s", message.dup, message.msg.qos, message.msg.retain)
         self.logger.debug("\tmid=%d, topic=%s, payloadlen=%d", message.msg.mid, message.msg.topic, message.msg.payloadlen)
-        
+
         message.timestamp = time.time()
         
         qos = message.msg.qos
         
         if qos == 0:
+            if type(message.msg.payload) is bytearray:
+                message.msg.payload = message.msg.payload.decode('utf8')
             evt = event.EventPublish(message.msg)
             self.push_event(evt)
 
@@ -389,6 +393,12 @@ class Nyamuk(base_nyamuk.BaseNyamuk):
         self.logger.debug("Send PUBLISH")
         if self.sock == NC.INVALID_SOCKET:
             return NC.ERR_NO_CONN
+
+        if type(topic) is unicode:
+            topic = topic.encode('utf8')
+        if type(payload) is unicode:
+            payload = payload.encode('utf8')
+
         return self._do_send_publish(mid, topic, payload, qos, retain, dup)
     
     def _do_send_publish(self, mid, topic, payload, qos, retain, dup):
