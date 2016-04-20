@@ -35,23 +35,25 @@ def read(sock, count):
     """Read from socket and return it's byte array representation.
     count = number of bytes to read
     """
+    data = None
+
     try:
         data = sock.recv(count)
     except ssl.SSLError as e:
         return data, e.errno, e.strerror if strerror else e.message
-    except socket.error as (errnum, errmsg):
-        return data, errnum, errmsg
     except socket.herror as (errnum, errmsg):
         return data, errnum, errmsg
     except socket.gaierror as (errnum, errmsg):
         return data, errnum, errmsg
     except socket.timeout:
         return data, errno.ETIMEDOUT, "Connection timed out"
+    except socket.error as (errnum, errmsg):
+        return data, errnum, errmsg
     
     ba_data = bytearray(data)
     
     if len(ba_data) == 0:
-        return ba_data, 0, "Connection closed"
+        return ba_data, errno.ECONNRESET, "Connection closed"
     
     return ba_data, 0, ""
 
