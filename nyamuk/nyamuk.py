@@ -200,7 +200,7 @@ class Nyamuk(base_nyamuk.BaseNyamuk):
             return NC.ERR_NO_CONN
         
         self.logger.info("UNSUBSCRIBE: %s", topic)
-        return self.send_unsubscribe(False, [topic])
+        return self.send_unsubscribe(False, [topic.encode('utf8')])
 
     def unsubscribe_multi(self, topics):
         """Unsubscribe to some topics."""
