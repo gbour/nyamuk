@@ -21,6 +21,7 @@ class Nyamuk(base_nyamuk.BaseNyamuk):
     def __init__(self, client_id, username = None, password = None,
                  server = "localhost", port = None, keepalive = NC.KEEPALIVE_VAL,
                  log_level = logging.DEBUG,
+                 log_file = None,
                  ssl = False, ssl_opts=[]):
 
         # default MQTT port
@@ -32,15 +33,14 @@ class Nyamuk(base_nyamuk.BaseNyamuk):
         
         #logging
         self.logger = logging.getLogger(client_id)
+        self.logger.propagate = False
         self.logger.setLevel(log_level)
         
-        ch = logging.StreamHandler()
-        ch.setLevel(log_level)
-        
+        ch = logging.StreamHandler() if log_file is None else logging.FileHandler(log_file)
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        
+
+        ch.setLevel(log_level)
         ch.setFormatter(formatter)
-        
         self.logger.addHandler(ch)
         
     def loop(self, timeout = 1):
