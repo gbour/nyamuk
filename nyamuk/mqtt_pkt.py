@@ -3,13 +3,23 @@ MQTT Packet
 @author : Iwan Budi Kusnanto
 '''
 import sys
+import logging
 
 import nyamuk_const as NC
 import nyamuk_net
 
+# do-nothing fake logger
+class _logger:
+    def __getattr__(self, name):
+        def _(self, *args, **kwargs):
+            pass
+        return _
+
 class MqttPkt:
+    logger = _logger()
+
     """An mqtt packet."""
-    def __init__(self):
+    def __init__(self, logger=None):
         self.command = 0
         self.have_remaining = False
         self.remaining_count = 0

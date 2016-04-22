@@ -21,6 +21,7 @@ class Nyamuk(base_nyamuk.BaseNyamuk):
     def __init__(self, client_id, username = None, password = None,
                  server = "localhost", port = None, keepalive = NC.KEEPALIVE_VAL,
                  log_level = logging.DEBUG,
+                 pkt_log   = False,
                  ssl = False, ssl_opts=[]):
 
         # default MQTT port
@@ -42,7 +43,11 @@ class Nyamuk(base_nyamuk.BaseNyamuk):
         ch.setFormatter(formatter)
         
         self.logger.addHandler(ch)
-        
+
+        # pkt logging
+        if pkt_log:
+            MqttPkt.set_logger(client_id)
+
     def loop(self, timeout = 1):
         """Main loop."""
         rlist = [self.sock]
