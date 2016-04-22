@@ -33,15 +33,14 @@ class Nyamuk(base_nyamuk.BaseNyamuk):
         
         #logging
         self.logger = logging.getLogger(client_id)
+        self.logger.propagate = False
         self.logger.setLevel(log_level)
         
-        ch = logging.StreamHandler()
-        ch.setLevel(log_level)
-        
+        ch = logging.StreamHandler() if log_file is None else logging.FileHandler(log_file)
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        
+
+        ch.setLevel(log_level)
         ch.setFormatter(formatter)
-        
         self.logger.addHandler(ch)
 
         # pkt logging
