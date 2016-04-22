@@ -21,6 +21,7 @@ class Nyamuk(base_nyamuk.BaseNyamuk):
     def __init__(self, client_id, username = None, password = None,
                  server = "localhost", port = None, keepalive = NC.KEEPALIVE_VAL,
                  log_level = logging.DEBUG,
+                 log_file  = None,
                  pkt_log   = False,
                  ssl = False, ssl_opts=[]):
 
