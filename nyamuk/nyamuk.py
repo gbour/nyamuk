@@ -441,8 +441,6 @@ class Nyamuk(base_nyamuk.BaseNyamuk):
 
         if type(topic) is unicode:
             topic = topic.encode('utf8')
-        if type(payload) is unicode:
-            payload = payload.encode('utf8')
 
         return self._do_send_publish(mid, topic, payload, qos, retain, dup)
     
