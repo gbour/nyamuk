@@ -421,9 +421,6 @@ class Nyamuk(base_nyamuk.BaseNyamuk):
         qos = message.msg.qos
         
         if qos in (0,1,2):
-            if type(message.msg.payload) is bytearray:
-                message.msg.payload = message.msg.payload.decode('utf8')
-
             evt = event.EventPublish(message.msg)
             self.push_event(evt)
 
@@ -439,6 +436,8 @@ class Nyamuk(base_nyamuk.BaseNyamuk):
         self.logger.debug("Send PUBLISH")
         if self.sock == NC.INVALID_SOCKET:
             return NC.ERR_NO_CONN
+        if type(payload) is unicode:
+            raise TypeError("publish payload is unicode. You must encode it with *encode('utf8')* function")
 
         if type(topic) is unicode:
             topic = topic.encode('utf8')
