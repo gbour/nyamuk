@@ -202,7 +202,7 @@ class Nyamuk(base_nyamuk.BaseNyamuk):
             return NC.ERR_NO_CONN
         
         self.logger.info("SUBSCRIBE: %s", topic)
-        return self.send_subscribe(False, [(topic.encode('utf8'), qos)])
+        return self.send_subscribe(False, [(utf8encode(topic), qos)])
 
     # subscribe to multiple topic filters at once
     def subscribe_multi(self, topics):
@@ -211,9 +211,7 @@ class Nyamuk(base_nyamuk.BaseNyamuk):
             return NC.ERR_NO_CONN
         
         self.logger.info("SUBSCRIBE: %s", ', '.join([t for (t,q) in topics]))
-        
-        topics2 = [(topic.encode('utf8'), qos) for (topic, qos) in topics]
-        return self.send_subscribe(False, topics2)
+        return self.send_subscribe(False, [(utf8encode(topic), qos) for (topic, qos) in topics])
 
     def unsubscribe(self, topic):
         """Unsubscribe to some topic."""
@@ -221,7 +219,7 @@ class Nyamuk(base_nyamuk.BaseNyamuk):
             return NC.ERR_NO_CONN
         
         self.logger.info("UNSUBSCRIBE: %s", topic)
-        return self.send_unsubscribe(False, [topic.encode('utf8')])
+        return self.send_unsubscribe(False, [utf8encode(topic)])
 
     def unsubscribe_multi(self, topics):
         """Unsubscribe to some topics."""
@@ -229,7 +227,7 @@ class Nyamuk(base_nyamuk.BaseNyamuk):
             return NC.ERR_NO_CONN
         
         self.logger.info("UNSUBSCRIBE: %s", ', '.join(topics))
-        return self.send_unsubscribe(False, [topic.encode('utf8') for topic in topics])
+        return self.send_unsubscribe(False, [utf8encode(topic) for topic in topics])
 
     def send_disconnect(self):
         """Send disconnect command."""
@@ -431,9 +429,6 @@ class Nyamuk(base_nyamuk.BaseNyamuk):
         qos = message.msg.qos
         
         if qos in (0,1,2):
-            if type(message.msg.payload) is bytearray:
-                message.msg.payload = message.msg.payload.decode('utf8')
-
             evt = event.EventPublish(message.msg)
             self.push_event(evt)
 
@@ -450,12 +445,9 @@ class Nyamuk(base_nyamuk.BaseNyamuk):
         if self.sock == NC.INVALID_SOCKET:
             return NC.ERR_NO_CONN
 
-        if type(topic) is unicode:
-            topic = topic.encode('utf8')
-        if type(payload) is unicode:
-            payload = payload.encode('utf8')
-
-        return self._do_send_publish(mid, topic, payload, qos, retain, dup)
+        #NOTE: payload may be any kind of data
+        #      yet if it is a unicode string we utf8-encode it as convenience
+        return self._do_send_publish(mid, utf8encode(topic), utf8encode(payload), qos, retain, dup)
     
     def _do_send_publish(self, mid, topic, payload, qos, retain, dup):
         ret, pkt = self.build_publish_pkt(mid, topic, payload, qos, retain, dup)
