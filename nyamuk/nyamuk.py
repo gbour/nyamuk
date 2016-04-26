@@ -17,6 +17,7 @@ from mqtt_pkt import MqttPkt
 from nyamuk_msg import NyamukMsgAll, NyamukMsg
 import nyamuk_net
 import event
+from . import utf8encode
 
 class Nyamuk(base_nyamuk.BaseNyamuk):
     """Nyamuk mqtt client class."""
@@ -130,13 +131,22 @@ class Nyamuk(base_nyamuk.BaseNyamuk):
             return NC.ERR_PROTOCOL
     
     #
-    # will = None | {'topic': Topic, 'message': Msg, 'qos': 1|2|3}
+    # will = None | {'topic': Topic, 'message': Msg, 'qos': 0|1|2}
+    # will message and qos are optional (default to empty string and 0 qos)
     #
     def connect(self, version = 3, clean_session = 1, will = None):
         """Connect to server."""
         self.clean_session = clean_session
-        self.will          = None if will is None else \
-            NyamukMsg(topic=will['topic'], payload=will['message'], qos=will.get('qos', 0))
+        self.will          = None
+        
+        if will is not None:
+            self.will = NyamukMsg(
+                topic = will['topic'],
+                # unicode text needs to be utf8 encoded to be sent on the wire
+                # str or bytearray are kept as it is
+                payload = utf8encode(will.get('message','')),
+                qos = will.get('qos', 0)
+            )
 
         #CONNECT packet
         pkt = MqttPkt()
@@ -421,6 +431,9 @@ class Nyamuk(base_nyamuk.BaseNyamuk):
         qos = message.msg.qos
         
         if qos in (0,1,2):
+            if type(message.msg.payload) is bytearray:
+                message.msg.payload = message.msg.payload.decode('utf8')
+
             evt = event.EventPublish(message.msg)
             self.push_event(evt)
 
@@ -436,11 +449,11 @@ class Nyamuk(base_nyamuk.BaseNyamuk):
         self.logger.debug("Send PUBLISH")
         if self.sock == NC.INVALID_SOCKET:
             return NC.ERR_NO_CONN
-        if type(payload) is unicode:
-            raise TypeError("publish payload is unicode. You must encode it with *encode('utf8')* function")
 
         if type(topic) is unicode:
             topic = topic.encode('utf8')
+        if type(payload) is unicode:
+            payload = payload.encode('utf8')
 
         return self._do_send_publish(mid, topic, payload, qos, retain, dup)
     
