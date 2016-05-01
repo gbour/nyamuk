@@ -7,7 +7,8 @@ python: 2.7
 addons:
     apt:
         packages:
-            - mosquitto
+            # mosquitto not allowed
+            #- mosquitto
 
 script:
     - true
