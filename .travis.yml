@@ -11,11 +11,10 @@ addons:
             #- mosquitto
             - libc-ares-dev
             - uuid-dev
-            - xsltproc
 
 install:
     - git clone https://github.com/eclipse/mosquitto.git
-    - cd mosquitto && make
+    - cd mosquitto && make WITH_DOCS=no
     - ./mosquitto/mosquitto -v -c mosquitto/mosquitto.conf 2> /tmp/mosquitto.log&
     - MOSQUITTO_PID=$!
 
