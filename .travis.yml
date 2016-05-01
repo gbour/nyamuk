@@ -14,9 +14,11 @@ addons:
 
 install:
     - git clone https://github.com/eclipse/mosquitto.git
-    - cd mosquitto && make WITH_DOCS=no
-    - ./mosquitto/mosquitto -v -c mosquitto/mosquitto.conf 2> /tmp/mosquitto.log&
+    - cd mosquitto
+    - make WITH_DOCS=no
+    - ./src/mosquitto -v -c mosquitto.conf 2> /tmp/mosquitto.log&
     - MOSQUITTO_PID=$!
+    - cd $TRAVIS_BUILD_DIR
 
 script:
     - true
