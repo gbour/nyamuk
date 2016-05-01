@@ -1,0 +1,13 @@
+sudo: required
+dist: trusty
+
+language: python
+python: 2.7
+
+addons:
+    apt:
+        packages:
+            - mosquitto
+
+script:
+    - true
