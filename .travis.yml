@@ -9,6 +9,19 @@ addons:
         packages:
             # mosquitto not allowed
             #- mosquitto
+            - libc-ares-dev
+            - uuid-dev
+            - xsltproc
+
+install:
+    - git clone https://github.com/eclipse/mosquitto.git
+    - cd mosquitto && make
+    - ./mosquitto/mosquitto -v -c mosquitto/mosquitto.conf 2> /tmp/mosquitto.log&
+    - MOSQUITTO_PID=$!
 
 script:
     - true
+
+after_script:
+    - kill -TERM $MOSQUITTO_PID
+    - cat /tmp/mosquitto.log
