@@ -15,6 +15,9 @@ class NyamukMsg:
         self.qos = qos
         self.retain = retain
 
+    def __repr__(self):
+        return "id={0}, topic='{1}', qos={2}, retain={3}".format(self.mid, self.topic, self.qos, self.retain)
+
 class NyamukMsgAll:
     
     def __init__(self):
