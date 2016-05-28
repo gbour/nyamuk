@@ -9,13 +9,14 @@ import errno
 from mqtt_pkt import MqttPkt
 import nyamuk_const as NC
 import nyamuk_net
+import nyamuk_ws
 import event
 
 MQTTCONNECT = 16# 1 << 4
 class BaseNyamuk:
     """Base class of nyamuk."""
     def __init__(self, client_id, username, password,
-                 server, port, keepalive, ssl, ssl_opts):
+                 server, port, keepalive, ssl, ssl_opts, websocket):
         ''' Constructor '''
         self.client_id = client_id
         self.username = username
@@ -25,7 +26,7 @@ class BaseNyamuk:
         self.ssl = ssl
         self.ssl_opts = ssl_opts
 
-        self.transport = nyamuk_net
+        self.transport = nyamuk_ws if websocket else nyamuk_net
         
         self.address = ""
         self.keep_alive = keepalive

@@ -16,6 +16,7 @@ import nyamuk_const as NC
 from mqtt_pkt import MqttPkt
 from nyamuk_msg import NyamukMsgAll, NyamukMsg
 import nyamuk_net
+import nyamuk_ws
 import event
 from utils import utf8encode
 
@@ -24,14 +25,15 @@ class Nyamuk(base_nyamuk.BaseNyamuk):
     def __init__(self, client_id, username = None, password = None,
                  server = "localhost", port = None, keepalive = NC.KEEPALIVE_VAL,
                  log_level = logging.DEBUG,
-                 ssl = False, ssl_opts=[]):
+                 ssl = False, ssl_opts=[],
+                 websocket = False):
 
         # default MQTT port
         if port is None:
             port = 8883 if ssl else 1883
 
         base_nyamuk.BaseNyamuk.__init__(self, client_id, username, password,
-                                        server, port, keepalive, ssl, ssl_opts)
+                                        server, port, keepalive, ssl, ssl_opts, websocket)
         
         #logging
         self.logger = logging.getLogger(client_id)
