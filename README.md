@@ -12,6 +12,7 @@ Features
 * [x] MQTT v3.1
 * [x] MQTT v3.1.1
 * [x] SSL
+* [x] WebSocket
 * [x] Qos 0, 1 & 2 support
 * [ ] docstring & documentation
 * [ ] python3 support
@@ -33,7 +34,7 @@ $> pip install nyamuk
 Example
 -------
 
-Publishing a message with Qos 1 (with MQTT v3.1.1)
+Publishing a message with Qos 1 (with MQTT v3.1.1):
 ```python
 import sys
 from nyamuk import *
@@ -55,7 +56,7 @@ ret = nloop(client) # ret should be EventPuback
 client.disconnect()
 ```
 
-Subscribing a topic
+Subscribing a topic:
 ```python
 import sys
 from nyamuk import *
@@ -92,6 +93,12 @@ except KeyboardInterrupt:
     pass
 
 client.disconnect()
+```
+
+Connecting using websocket transport:
+```python
+client = Nyamuk("test_websocket", server="test.mosquitto.org", port=8080, websocket=True)
+client.connect(version=4)
 ```
 
 
