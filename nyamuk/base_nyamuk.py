@@ -24,6 +24,8 @@ class BaseNyamuk:
         self.port = port
         self.ssl = ssl
         self.ssl_opts = ssl_opts
+
+        self.transport = nyamuk_net
         
         self.address = ""
         self.keep_alive = keepalive
@@ -102,7 +104,7 @@ class BaseNyamuk:
         
         while len(self.out_packet) > 0:
             pkt = self.out_packet[0]
-            write_length, status = nyamuk_net.write(self.sock, pkt.payload)
+            write_length, status = self.transport.write(self.sock, pkt.payload)
             if write_length > 0:
                 pkt.to_process -= write_length
                 pkt.pos += write_length
@@ -144,7 +146,7 @@ class BaseNyamuk:
             return NC.ERR_NO_CONN
         
         if self.in_packet.command == 0:
-            ba_data, errnum, errmsg = nyamuk_net.read(self.sock, 1)
+            ba_data, errnum, errmsg = self.transport.read(self.sock, 1)
             if errnum == 0 and len(ba_data) == 1:
                 bytes_received += 1
                 byte = ba_data[0]
@@ -167,7 +169,7 @@ class BaseNyamuk:
         if not self.in_packet.have_remaining:
             loop_flag = True
             while loop_flag:
-                ba_data, errnum, errmsg = nyamuk_net.read(self.sock, 1)
+                ba_data, errnum, errmsg = self.transport.read(self.sock, 1)
                 
                 if errnum == 0 and len(ba_data) == 1:       
                     byte = ba_data[0]
@@ -200,7 +202,7 @@ class BaseNyamuk:
             self.in_packet.have_remaining = True
         
         if self.in_packet.to_process > 0:
-            ba_data, errnum, errmsg = nyamuk_net.read(self.sock, self.in_packet.to_process)
+            ba_data, errnum, errmsg = self.transport.read(self.sock, self.in_packet.to_process)
             if errnum == 0 and len(ba_data) > 0:
                 readlen = len(ba_data)
                 bytes_received += readlen
@@ -242,7 +244,7 @@ class BaseNyamuk:
         if self.sock == NC.INVALID_SOCKET:
             return False
 
-        data,err,msg = nyamuk_net.read(self.sock, 1)
+        data,err,msg = self.transport.read(self.sock, 1)
         if err in (errno.ECONNRESET, errno.ETIMEDOUT) :
             return False
 
