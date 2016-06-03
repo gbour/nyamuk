@@ -17,7 +17,7 @@ from mqtt_pkt import MqttPkt
 from nyamuk_msg import NyamukMsgAll, NyamukMsg
 import nyamuk_net
 import event
-from . import utf8encode
+from utils import utf8encode
 
 class Nyamuk(base_nyamuk.BaseNyamuk):
     """Nyamuk mqtt client class."""
@@ -364,7 +364,7 @@ class Nyamuk(base_nyamuk.BaseNyamuk):
             
             i += 1
         
-        evt = event.EventSuback(mid, granted_qos)
+        evt = event.EventSuback(mid, list(granted_qos))
         self.push_event(evt)
         
         granted_qos = None
