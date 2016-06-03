@@ -16,6 +16,7 @@ import nyamuk_const as NC
 from mqtt_pkt import MqttPkt
 from nyamuk_msg import NyamukMsgAll, NyamukMsg
 import nyamuk_net
+import nyamuk_ws
 import event
 from utils import utf8encode
 
@@ -26,14 +27,15 @@ class Nyamuk(base_nyamuk.BaseNyamuk):
                  log_level = logging.DEBUG,
                  log_file  = None,
                  pkt_log   = False,
-                 ssl = False, ssl_opts=[]):
+                 ssl = False, ssl_opts=[],
+                 websocket = False):
 
         # default MQTT port
         if port is None:
             port = 8883 if ssl else 1883
 
         base_nyamuk.BaseNyamuk.__init__(self, client_id, username, password,
-                                        server, port, keepalive, ssl, ssl_opts)
+                                        server, port, keepalive, ssl, ssl_opts, websocket)
         
         #logging
         self.logger = logging.getLogger(client_id)
@@ -154,34 +156,12 @@ class Nyamuk(base_nyamuk.BaseNyamuk):
         pkt.connect_build(self, self.keep_alive, clean_session, version = version)
         
         #create socket
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        if self.ssl:
-            opts = {
-                'do_handshake_on_connect': True,
-                'ssl_version': ssl.PROTOCOL_TLSv1
-            }
-            opts.update(self.ssl_opts)
-            #print opts, self.port
-
-            try:
-                self.sock = ssl.wrap_socket(self.sock, **opts)
-            except Exception, e:
-                self.logger.error("failed to initiate SSL connection: {0}".format(e))
-                return NC.ERR_UNKNOWN
-
-        nyamuk_net.setkeepalives(self.sock)
-        
-        self.logger.info("Connecting to server ....%s", self.server)
-        err = nyamuk_net.connect(self.sock,(self.server, self.port))
-        #print self.sock.cipher()
-        
-        if err != None:
-            self.logger.error(err[1])
+        ret = self.transport.connect((self.server, self.port), self.ssl, self.ssl_opts, version)
+        if ret[0] != NC.ERR_SUCCESS:
+            self.logger.error(ret[1])
             return NC.ERR_UNKNOWN
         
-        #set to nonblock
-        self.sock.setblocking(0)
-        
+        self.sock = ret[1]
         return self.packet_queue(pkt)
     
     def disconnect(self):

@@ -6,15 +6,27 @@ import ssl
 import socket
 import errno
 
-def MOSQ_MSB(A):
-    """get most significant byte."""
-    return (( A & 0xFF00) >> 8)
-    
-def MOSQ_LSB(A):
-    """get less significant byte."""
-    return (A & 0x00FF)
+import nyamuk_const as NC
 
-def connect(sock, addr):
+def connect(addr, use_ssl, ssl_opts, version=None):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    if use_ssl:
+        opts = {
+            'do_handshake_on_connect': True,
+            'ssl_version': ssl.PROTOCOL_TLSv1
+        }
+        opts.update(ssl_opts)
+        #print opts, addr
+
+        try:
+            sock = ssl.wrap_socket(sock, **opts)
+        except Exception, e:
+            return (NC.ERR_UNKNOWN, "failed to initiate SSL connection: {0}".format(e))
+
+    setkeepalives(sock)
+    
+    #self.logger.info("Connecting to server ....%s", self.server)
+
     """Connect to some addr."""
     try:
         sock.connect(addr)
@@ -28,8 +40,11 @@ def connect(sock, addr):
         return (socket.timeout, "timeout")
     except socket.error as e:
         return (socket.error, e.strerror if e.strerror else e.message)
-    
-    return None
+
+    #set to nonblock
+    sock.setblocking(0)
+
+    return (NC.ERR_SUCCESS, sock)
     
 def read(sock, count):
     """Read from socket and return it's byte array representation.

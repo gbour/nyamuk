@@ -5,9 +5,8 @@ MQTT Packet
 import sys
 import logging
 
-from utils import utf8encode
+import utils
 import nyamuk_const as NC
-import nyamuk_net
 
 # do-nothing fake logger
 class _logger:
@@ -112,15 +111,15 @@ class MqttPkt:
         will = 0; will_topic = None
         byte = 0
 
-        client_id = utf8encode(nyamuk.client_id)
-        username  = utf8encode(nyamuk.username) if nyamuk.username is not None else None
-        password  = utf8encode(nyamuk.password) if nyamuk.password is not None else None
+        client_id = utils.utf8encode(nyamuk.client_id)
+        username  = utils.utf8encode(nyamuk.username) if nyamuk.username is not None else None
+        password  = utils.utf8encode(nyamuk.password) if nyamuk.password is not None else None
 
         #payload len
         payload_len = 2 + len(client_id)
         if nyamuk.will is not None:
             will = 1
-            will_topic = utf8encode(nyamuk.will.topic)
+            will_topic = utils.utf8encode(nyamuk.will.topic)
 
             payload_len = payload_len + 2 + len(will_topic) + 2 + nyamuk.will.payloadlen
         
@@ -175,8 +174,8 @@ class MqttPkt:
         
     def write_uint16(self, word):
         """Write 2 bytes."""
-        self.write_byte(nyamuk_net.MOSQ_MSB(word))
-        self.write_byte(nyamuk_net.MOSQ_LSB(word))
+        self.write_byte(utils.MOSQ_MSB(word))
+        self.write_byte(utils.MOSQ_LSB(word))
         
     def write_byte(self, byte):
         """Write one byte."""
