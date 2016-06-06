@@ -27,7 +27,7 @@ class Nyamuk(base_nyamuk.BaseNyamuk):
                  log_level = logging.DEBUG,
                  log_file  = None,
                  pkt_log   = False,
-                 ssl = False, ssl_opts=[],
+                 ssl = False, ssl_opts={},
                  websocket = False):
 
         # default MQTT port

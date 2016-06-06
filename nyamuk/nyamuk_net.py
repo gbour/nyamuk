@@ -13,7 +13,8 @@ def connect(addr, use_ssl, ssl_opts, version=None):
     if use_ssl:
         opts = {
             'do_handshake_on_connect': True,
-            'ssl_version': ssl.PROTOCOL_TLSv1
+            'ssl_version': ssl.PROTOCOL_TLSv1,
+#            'cert_reqs'  : ssl.CERT_OPTIONAL,
         }
         opts.update(ssl_opts)
         #print opts, addr
