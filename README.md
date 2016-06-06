@@ -101,6 +101,13 @@ client = Nyamuk("test_websocket", server="test.mosquitto.org", port=8080, websoc
 client.connect(version=4)
 ```
 
+Or using SSL:
+```python
+client = Nyamuk("test_websocket", server="test.mosquitto.org", port=8081, websocket=True, ssl=True)
+client.connect(version=4)
+```
+
+
 
 Authors
 -------

@@ -25,7 +25,7 @@ class Nyamuk(base_nyamuk.BaseNyamuk):
     def __init__(self, client_id, username = None, password = None,
                  server = "localhost", port = None, keepalive = NC.KEEPALIVE_VAL,
                  log_level = logging.DEBUG,
-                 ssl = False, ssl_opts=[],
+                 ssl = False, ssl_opts={},
                  websocket = False):
 
         # default MQTT port

@@ -2,6 +2,7 @@
 Nyamuk websocket networking module.
 Copyright(c) 2016 Guillaume Bour
 """
+import ssl
 import websocket
 
 import nyamuk_const as NC
@@ -12,11 +13,19 @@ SUBPROTOCOLS = {
 }
 
 def connect((server, port), use_ssl, ssl_opts, mqtt_version):
-    ws = websocket.WebSocket()
+    opts = {
+        'do_handshake_on_connect': True,
+        'ssl_version': ssl.PROTOCOL_TLSv1,
+        'cert_reqs'  : ssl.CERT_NONE,
+    }
+    opts.update(ssl_opts)
+
+    ws = websocket.WebSocket(sslopt=opts)
     ws.settimeout(1)
 
     try:
-        ws.connect('ws://{0}:{1}'.format(server, port), subprotocols=SUBPROTOCOLS.get(mqtt_version))
+        ws.connect('{proto}://{server}:{port}'.format(proto='wss' if use_ssl else 'ws', server=server, port=port), 
+                   subprotocols=SUBPROTOCOLS.get(mqtt_version))
     except websocket.WebSocketBadStatusException as e:
         return (NC.ERR_CONN_REFUSED, "return code is {0}".format(e.status_code))
 
