@@ -77,7 +77,7 @@ class BaseNyamuk:
     def mid_generate(self):
         """Generate mid. TODO : check."""
         self.last_mid += 1
-        if self.last_mid == 0:
+        if self.last_mid > 65535:
             self.last_mid += 1
         return self.last_mid
 
